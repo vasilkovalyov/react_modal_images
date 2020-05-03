@@ -1,0 +1,42 @@
+.swiper-pagination  {
+    display: flex;
+    justify-content: center;
+
+    &-bullet {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        overflow: hidden;
+        background-color: gray;
+        margin: 0 2px;
+
+        &-active {
+            background-color: black
+        }
+    }
+}
+
+.swiper-wrapper {
+    margin-bottom: 20px;
+}
+
+.swiper-button {
+    position: absolute;
+    top: 50%;
+    z-index: 2;
+    transform: translateY(-50%);
+
+    &:hover {
+        cursor: pointer;
+    }
+}
+
+
+.swiper-button-next {
+    right: 10px;
+}
+
+.swiper-button-prev {
+    left: 10px;
+}
+

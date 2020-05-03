@@ -33,7 +33,7 @@ class Post extends Component {
         
         return (
             <div className="post" onMouseLeave={this.handleOutHover.bind(this)}>
-                <div className="post__image">
+                <div className="post__image" onClick={this.props.onClickUserInfo}>
                     <img src={post.urls.regular} alt=""/>
                 </div>
                 <div className="post__description">

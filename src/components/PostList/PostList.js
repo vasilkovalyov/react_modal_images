@@ -6,6 +6,9 @@ import './PostList.scss'
 import Post from '../Post/Post'
 import Pagination from '../Pagination/Pagination';
 import Modal from '../Modal/Modal';
+import SimpleSwiperWithParams from '../SwiperComponent/SwiperComponent';
+import UserProfileInfo from '../User/UserProfileInfo';
+import UserModalProfile from '../User/UserModalProfile';
 
 const apiKey = '1Vd3uFiWa7U0PzNxwg17UmTEBCygJE6knnSTKAiL4wM';
 
@@ -17,7 +20,10 @@ class PostList extends Component {
         perPageCount: 9,
         totalPhotos: 0,
         isModal: false,
-        modalData: null
+        modalData: null,
+        activePostImages: null,
+        isModalUser: false,
+        userInfo: null
     }
 
     componentWillMount() {
@@ -43,12 +49,18 @@ class PostList extends Component {
         .catch(e => console.log(e.message))
     }
 
+    onClickUserInfo(data) {
+        this.setState({
+            isModalUser: true,
+            userInfo: data.user
+        })
+    }
+
     handleOnPrevPage(number) {
         let num = number - 1;
         this.setState({
             currentPage: num
         })
-
         this.axiosPost(num);
     }
 
@@ -57,22 +69,42 @@ class PostList extends Component {
         this.setState({
             currentPage: num
         })
-
         this.axiosPost(num);
     }
 
     handleClickImagesUser(user) {
-        this.setState({
-            isModal: true,
-            modalData: user
+        axios.get(user.user.links.photos, {
+            params: {
+                client_id: apiKey,
+                per_page: 10
+            }
         })
+        .then(response => response.data)
+        .then(data => {
+            this.setState({
+                activePostImages: data.map(item => item.urls.small),
+                modalData: user
+            })
+        })
+        .catch(e => console.log(e.message));
+
+
+        setTimeout(() => {
+            this.setState({
+                isModal: true,
+            })
+        }, 300);
     }
 
     handleCloseModal(e) {
-        console.log(e);
-        
         this.setState({
             isModal: false
+        })
+    }
+
+    handleCloseModalUser(e) {
+        this.setState({
+            isModalUser: false
         })
     }
 
@@ -80,9 +112,8 @@ class PostList extends Component {
         const userList = !this.state.loading ? 
             <span className="loader"></span> : 
             this.state.postList.map((item, i) => <div className="col" key={i}>
-                <Post post={item} onClickImagesUser={this.handleClickImagesUser.bind(this, item)}/>
+                <Post post={item} onClickImagesUser={this.handleClickImagesUser.bind(this, item)} onClickUserInfo={this.onClickUserInfo.bind(this, item)}/>
             </div>)
-        
         
         return (
             <div className="section-content">
@@ -98,8 +129,16 @@ class PostList extends Component {
                         handleOnPrevPage={this.handleOnPrevPage.bind(this, this.state.currentPage)}
                     />
                 ) : null }
-
-                {this.state.isModal ? <Modal modalData={this.state.modalData} onCloseModal={this.handleCloseModal.bind(this)}/> : null}
+                {this.state.isModal ? (
+                    <Modal onCloseModal={this.handleCloseModal.bind(this)}>
+                        { this.state.loading ? <SimpleSwiperWithParams slides={this.state.activePostImages}/> : null }
+                    </Modal>
+                ) : null}
+                { this.state.isModalUser ? (
+                    <Modal onCloseModal={this.handleCloseModalUser.bind(this)}>
+                        <UserModalProfile user={this.state.userInfo}/>
+                    </Modal>
+                ) : null}
             </div>
         )
     }
